@@ -40,14 +40,21 @@ class TestSearchEngine(unittest.TestCase):
         self.data = [
             {"name": "Phone", "category": "Electronics", "quantity": "50", "price": "699"},
             {"name": "Laptop", "category": "Electronics", "quantity": "20", "price": "999"},
+            {"name": "Laptop", "category": "Electronics", "quantity": "20", "price": "999"},
+            {"name": "Laptop", "category": "Electronics", "quantity": "20", "price": "999"},
             {"name": "Chair", "category": "Furniture", "quantity": "200", "price": "49"}
         ]
 
     def test_search_by_category(self):
         engine = SearchEngine(self.data)
         results = engine.search("category", "Electronics")
-        self.assertEqual(len(results), 2)  # Deux résultats trouvés
+        self.assertEqual(len(results), 4)  # Deux résultats trouvés
         self.assertEqual(results[0]["name"], "Phone")
+
+    #vérifie si prend compte des doublons
+        results2 = engine.search("name", "Laptop")
+        self.assertEqual(len(results2), 3)
+
 
 
     def test_search_no_results(self):
