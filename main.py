@@ -77,10 +77,10 @@ def interactive_mode(data):
             else:
                 value = prompt_user(f"Quelle valeur cherchez-vous pour le champ '{field}'")
                 search_engine = SearchEngine(data)
-                results = search_engine.search(field, value)
-                if results:
-                    print(f"\nRésultats trouvés ({len(results)} lignes) :")
-                    print_table(results)
+                filtered_data = search_engine.search(field, value)
+                if filtered_data:
+                    print(f"\nRésultats trouvés ({len(filtered_data)} lignes) :")
+                    print_table(filtered_data)
                 else:
                     print("\nAucun résultat trouvé.")
 
@@ -125,4 +125,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
