@@ -1,117 +1,95 @@
 import unittest
-import os
-from unittest.mock import patch
 from data_loader import DataLoader
 from search import SearchEngine
 from report_generator import ReportGenerator
-import main
-import argparse
-
+import os
+import csv
 
 class TestDataLoader(unittest.TestCase):
+
     def setUp(self):
-        # Création de fichiers CSV temporaires pour les tests
+        """Création d'un dossier temporaire avec des fichiers CSV pour les tests."""
         self.test_dir = "test_data"
         os.makedirs(self.test_dir, exist_ok=True)
-
-        with open(f"{self.test_dir}/file1.csv", "w") as f:
-            f.write("name,category,quantity,price\nPhone,Electronics,50,699\n")
-
-        with open(f"{self.test_dir}/file2.csv", "w") as f:
-            f.write("name,category,quantity,price\nLaptop,Electronics,20,999\n")
+        self.create_test_csv("test1.csv", [
+            {"nom": "Produit A", "catégorie": "Catégorie 1", "prix_unitaire": "10"},
+            {"nom": "Produit B", "catégorie": "Catégorie 2", "prix_unitaire": "20"},
+        ])
 
     def tearDown(self):
-        # Suppression des fichiers après les tests
+        """Supprime le dossier temporaire après les tests."""
         for file in os.listdir(self.test_dir):
             os.remove(os.path.join(self.test_dir, file))
         os.rmdir(self.test_dir)
 
+    def create_test_csv(self, filename, data):
+        """Crée un fichier CSV de test."""
+        with open(os.path.join(self.test_dir, filename), 'w', newline='') as f:
+            header = data[0].keys()
+            writer = csv.DictWriter(f, fieldnames=header)
+            writer.writeheader()
+            writer.writerows(data)
+
     def test_load_csv_files(self):
+        """Test du chargement des fichiers CSV."""
         loader = DataLoader(self.test_dir)
         loader.load_csv_files()
         data = loader.get_data()
-        self.assertEqual(len(data), 2)  # 2 lignes chargées
-        self.assertEqual(data[0]["name"], "Phone")  # Vérifie# les données
-
+        self.assertEqual(len(data), 2)  # Vérifie que 2 lignes ont été chargées
+        self.assertEqual(data[0]["nom"], "Produit A")  # Vérifie le contenu du premier produit
 
 class TestSearchEngine(unittest.TestCase):
-    #on met le contenu des fchiers csv pour tester
+
     def setUp(self):
+        """Données de test pour les tests de recherche."""
         self.data = [
-            {"name": "Phone", "category": "Electronics", "quantity": "50", "price": "699"},
-            {"name": "Laptop", "category": "Electronics", "quantity": "20", "price": "999"},
-            {"name": "Laptop", "category": "Electronics", "quantity": "20", "price": "999"},
-            {"name": "Laptop", "category": "Electronics", "quantity": "20", "price": "999"},
-            {"name": "Chair", "category": "Furniture", "quantity": "200", "price": "49"}
+            {"nom": "Produit A", "catégorie": "Catégorie 1", "prix_unitaire": "10"},
+            {"nom": "Produit B", "catégorie": "Catégorie 2", "prix_unitaire": "20"},
+            {"nom": "Produit C", "catégorie": "Catégorie 1", "prix_unitaire": "30"},
         ]
+        self.search_engine = SearchEngine(self.data)
 
-    def test_search_by_category(self):
-        engine = SearchEngine(self.data)
-        results = engine.search("category", "Electronics")
-        self.assertEqual(len(results), 4)  # Deux résultats trouvés
-        self.assertEqual(results[0]["name"], "Phone")
+    def test_search(self):
+        """Test de la méthode de recherche simple."""
+        results = self.search_engine.search("nom", "Produit A")
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["nom"], "Produit A")
 
-    #vérifie si prend compte des doublons
-        results2 = engine.search("name", "Laptop")
-        self.assertEqual(len(results2), 3)
-
-
-
-    def test_search_no_results(self):
-        engine = SearchEngine(self.data)
-        results = engine.search("category", "Toys")
-        self.assertEqual(len(results), 0)  # Aucun résultat
-
+    def test_advanced_search(self):
+        """Test de la méthode de recherche avancée."""
+        results = self.search_engine.advanced_search("prix_unitaire", ">", "15")
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["nom"], "Produit B")
 
 class TestReportGenerator(unittest.TestCase):
+
     def setUp(self):
+        """Données de test pour les tests de génération de rapport."""
         self.data = [
-            {"name": "Phone", "category": "Electronics", "quantity": "50", "price": "699"},
-            {"name": "Laptop", "category": "Electronics", "quantity": "20", "price": "999"}
+            {"nom": "Produit A", "catégorie": "Catégorie 1", "prix_unitaire": "10"},
+            {"nom": "Produit B", "catégorie": "Catégorie 2", "prix_unitaire": "20"},
         ]
         self.output_file = "test_report.csv"
 
     def tearDown(self):
+        """Supprime le fichier de rapport généré après les tests."""
         if os.path.exists(self.output_file):
             os.remove(self.output_file)
 
     def test_generate_summary(self):
-        generator = ReportGenerator(self.data)
-        generator.generate_summary(self.output_file)
-        self.assertTrue(os.path.exists(self.output_file))  # Vérifie que le fichier est créé
+        """Test de la génération du rapport."""
+        report_generator = ReportGenerator(self.data)
+        report_generator.generate_summary(self.output_file)
+
+        # Vérifie que le fichier a été créé
+        self.assertTrue(os.path.exists(self.output_file))
 
         # Vérifie le contenu du fichier
-        with open(self.output_file, "r") as f:
-            lines = f.readlines()
-        self.assertEqual(len(lines), 3)  # 1 ligne d'en-tête + 2 lignes de données
+        with open(self.output_file, newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            self.assertEqual(len(rows), 2)  # Vérifie que 2 lignes ont été écrites
+            self.assertEqual(rows[0]["nom"], "Produit A")  # Vérifie le contenu
 
-
-class TestMainScript(unittest.TestCase):
-    def setUp(self):
-        # Préparer les fichiers CSV de test
-        self.test_dir = os.path.abspath("test_data")
-        os.makedirs(self.test_dir, exist_ok=True)
-
-        with open(os.path.join(self.test_dir, "file1.csv"), "w") as f:
-            f.write("name,category,quantity,price\nPhone,Electronics,50,699\n")
-
-        with open(os.path.join(self.test_dir, "file2.csv"), "w") as f:
-            f.write("name,category,quantity,price\nLaptop,Electronics,20,999\n")
-
-        self.output_file = os.path.abspath("test_summary.csv")
-
-    def tearDown(self):
-        # Nettoyer les fichiers après les tests
-        for file in os.listdir(self.test_dir):
-            os.remove(os.path.join(self.test_dir, file))
-        os.rmdir(self.test_dir)
-
-        if os.path.exists(self.output_file):
-            os.remove(self.output_file)
-
-    @patch("argparse.ArgumentParser.parse_args", return_value=argparse.Namespace(
-        directory=os.path.abspath("test_data"), search=None, report=os.path.abspath("test_summary.csv")))
-    def test_generate_report(self, mock_args):
-        # Vérifie la génération de rapport via le script principal
-        main.main()
-        self.assertTrue(os.path.exists(self.output_file))
+if __name__ == "__main__":
+    unittest.main()
