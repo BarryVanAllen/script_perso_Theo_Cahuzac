@@ -5,6 +5,9 @@ class SearchEngine:
     def __init__(self, data):
         self.data = data
 
+    def search(self, field, value):
+        return [row for row in self.data if row.get(field, '').lower() == value.lower()]
+
     def advanced_search(self, field, operator_symbol, value):
         """Recherche avancée avec des opérateurs (>, <, ==, etc.)."""
         OPERATORS = {
