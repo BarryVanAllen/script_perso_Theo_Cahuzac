@@ -5,7 +5,7 @@ class ReportGenerator:
     def __init__(self, data: List[Dict]):
         self.data = data
 
-    def generate_summary(self, output_file: str) -> None:
+    def generate_summary(self, output_file):
         """Génère un rapport résumé sous forme de CSV."""
         if not self.data:
             print("Aucune donnée disponible pour générer un rapport.")
