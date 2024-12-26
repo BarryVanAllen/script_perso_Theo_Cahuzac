@@ -1,10 +1,19 @@
+from typing import List, Dict
+import os
+import csv
+
 class DataLoader:
     def __init__(self, directory: str):
         self.directory = directory
         self.data = []
 
     def load_csv_files(self) -> None:
-        """Charge et consolide les fichiers CSV dans un seul tableau."""
+        """Charge et consolide les fichiers CSV dans un seul tableau.
+        PRE : self.directory est le dir contenant les fichiers CSV.
+        POST : retourne si les fichiers ont été chargé ou non.
+        RAISE : UnicodeDecodeError : si un fichier csv ne peut pas être ouvert
+                :exception si self.directory n'existe pas ou ne contient pas de fichier.
+        """
         for filename in os.listdir(self.directory):
             if filename.endswith('.csv'):
                 filepath = os.path.join(self.directory, filename)
@@ -24,5 +33,8 @@ class DataLoader:
                         print(f"Erreur lors de l'ouverture du fichier {filename}: {e}")
 
     def get_data(self) -> List[Dict]:
-        """Renvoie les données consolidées."""
+        """Renvoie les données consolidées.
+        PRE : /
+        POST : Return les données chargées sous forme de liste de dictionnaire.
+        """
         return self.data
