@@ -6,7 +6,14 @@ class ReportGenerator:
         self.data = data
 
     def generate_summary(self, output_file):
-        """Génère un rapport résumé sous forme de CSV."""
+        """Génère un rapport résumé sous forme de CSV.
+        PRE : self.data sont les données consolidé.
+                output_file est le chemin vers la ou sera écrit le rapport.
+        POST : Génère un fichier csv avec les données CSV trié ou non.
+                retourne une string disant que aucune données n'a été trouvé.
+        RAISE : Exeption: output_file est un chemin invalide
+                IOError : le fichier ne peut pas être écrit.
+        """
         if not self.data:
             print("Aucune donnée disponible pour générer un rapport.")
             return
