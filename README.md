@@ -13,18 +13,11 @@ Ce projet est un programme qui permet de charger et de manipuler des fichiers CS
 
 1. télécharger les fichiers
      télécharger tout les fichiers et les installer selon l'arborescence suivante :
-   structure : 
-├── main.py                # Script principal du programme
-│
-├── data/                  # Dossier contenant les fichiers CSV
-│   ├── fichier1.csv
-│   ├── fichier2.csv
-│   └── ...
-|── utils/                 # Dossier pour les fonctions utilitaires (si applicable)
-    ├── data_loader.py     # Chargement des données
-    ├── report_generator.py # Génération de rapports
-    └── ...
-      
+   structure :
+   
+
+      ![Capture d'écran 2025-01-09 103704](https://github.com/user-attachments/assets/ea214fbe-808c-4ecb-a0cd-08bb26cdfa86)
+
 
 3. installer pandas dans le powerShell
      pip install pandas
