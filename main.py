@@ -73,9 +73,7 @@ def main():
                 print("\nAucun résultat trouvé.")
         except ValueError as e:
             print(f"Erreur : {e}")
-    else:
-        print("Mode interactif activé. Fournissez --field et --value pour une recherche directe.")
-        # Appel du mode interactif ici si nécessaire
+
 
 
 if __name__ == "__main__":
